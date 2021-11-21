@@ -2,6 +2,7 @@ package com.vector.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.vector.pojo.SeckillOrder;
+import com.vector.pojo.User;
 
 /**
  * <p>
@@ -12,5 +13,6 @@ import com.vector.pojo.SeckillOrder;
  * @since 2021-10-31
  */
 public interface ISeckillOrderService extends IService<SeckillOrder> {
-
+// 获取秒杀结果
+  Long getResult(User user, Long goodsId);
 }

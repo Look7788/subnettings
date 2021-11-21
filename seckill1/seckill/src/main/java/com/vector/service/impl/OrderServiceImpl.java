@@ -13,15 +13,20 @@ import com.vector.service.IGoodsService;
 import com.vector.service.IOrderService;
 import com.vector.service.ISeckillGoodsService;
 import com.vector.service.ISeckillOrderService;
+import com.vector.utils.MD5Util;
+import com.vector.utils.UUIDUtile;
 import com.vector.vo.GoodsVo;
 import com.vector.vo.OrderDetailVo;
 import com.vector.vo.RespBeanEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -49,14 +54,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
   @Transactional
   @Override
   public Order seckill(User user, GoodsVo goods) {
+    ValueOperations valueOperations = redisTemplate.opsForValue();
     //秒杀商品表前库存
     SeckillGoods seckillGoods = seckillGoodsService.getOne(new QueryWrapper<SeckillGoods>().eq
             ("goods_id", goods.getId()));
     seckillGoods.setStockCount(seckillGoods.getStockCount()-1);
     boolean seckillGoodsResult = seckillGoodsService.update(new UpdateWrapper<SeckillGoods>().setSql("stock_count = stock_count-1").eq(
             "goods_id",goods.getId()).gt("stock_count",0));
-    if (!seckillGoodsResult){
-      return null;
+    if (seckillGoods.getStockCount()<1){
+      //判断是否还有库存
+       valueOperations.set("isStockEmpty:"+goods.getId(),"0");
+       return null;
     }
     //生成订单
     Order order = new Order();
@@ -91,5 +99,50 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     detail.setOrder(order);
     detail.setGoodsVo(goodsVo);
     return detail;
+  }
+
+  /**
+   * 获取秒杀地址
+   * @param user
+   * @param goodsId
+   * @return
+   */
+  @Override
+  public String createPath(User user, Long goodsId) {
+    String str = MD5Util.md5(UUIDUtile.uuid()+"123456");
+    redisTemplate.opsForValue().set("seckillPath:"+user.getId()+":"+goodsId,str,60, TimeUnit.SECONDS);
+    return str;
+  }
+
+  /**
+   * 校验秒杀地址
+   * @param user
+   * @param goodsId
+   * @param path
+   * @return
+   */
+  @Override
+  public boolean checkPath(User user, Long goodsId, String path) {
+    if (user == null || goodsId <0 || StringUtils.isEmpty(path)){
+      return false;
+    }
+    String redisPath = (String) redisTemplate.opsForValue().get("seckillPath:" + user.getId() + ":" + goodsId);
+    return path.equals(redisPath);
+  }
+
+  /**
+   *验证码校验
+   * @param user
+   * @param goodsId
+   * @param captcha
+   * @return
+   */
+  @Override
+  public boolean checkCapcha(User user, Long goodsId, String captcha) {
+    if (StringUtils.isEmpty(captcha)||user==null||goodsId<0){
+      return false;
+    }
+    String redisCaptcha = (String) redisTemplate.opsForValue().get("captcha" + user.getId() + ":" + goodsId);
+    return captcha.equals(redisCaptcha);
   }
 }
