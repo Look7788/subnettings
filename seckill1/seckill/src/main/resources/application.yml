@@ -24,7 +24,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/seckill?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
-    password: chen123456
+    password: 123456
     hikari:
       #连接名
       pool-name: DateHikariCP
@@ -63,7 +63,7 @@ spring:
         max-idle: 200
         # 最大空闲连接，默认0
         min-idle: 5
-    password: cgc123456
+    password: 123456
 
 # RabbitMQ配置
   rabbitmq:
@@ -72,7 +72,7 @@ spring:
     #用户名
     username: admin
     #密码
-    password: chen123456
+    password: 123456
     #虚拟主机
     virtual-host: /
     port: 5672
