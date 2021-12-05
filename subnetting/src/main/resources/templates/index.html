@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>子网划分工具</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<script src="../js/bootstrap.js/bootstrap.min.js"></script>
+		<script src="../js/jquery-2.2.4.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<script type="text/javascript">
+			$(function () {
+				$("#doAjax").click(function () {
+					var B1 = $("#B1").val();
+					var B2 = $("#B2").val();
+					var B3 = $("#B3").val();
+					var B4 = $("#B4").val();
+					var B5 = $("#B5").val();
+
+					$.ajax({
+						url: "/calculate",
+						data: {
+							B1 : B1,
+							B2 : B2,
+							B3 : B3,
+							B4 : B4,
+							B5 : B5
+						},
+						success: function (date) {
+							document.getElementById("show").innerHTML = date
+							console.log(this.data)
+						}
+					})
+				})
+			})
+		</script>
+	</head>
+	<body>
+		<h2 align="center">子网划分工具</h2>
+		<div class="row" style="padding: 60px 100px 10px 50px; text-align: center;">
+			<div class="form-group">
+				<em style="color: white;">将网络地址的四个字节分别设为B1,B2,B3,B4!</em>
+			</div>
+			<form class="form-inline" role="form">
+				<div class="form-group">
+					<label style="color: white;">网络地址：</label>
+					<input type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'') " id="B1" class="form-control" placeholder="B1(0~223)">
+				</div>
+				<div class="form-group">
+					<input type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'') " id="B2" class="form-control" placeholder="B2(0~255)">
+				</div>
+				<div class="form-group">
+					<input type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'') " id="B3" class="form-control" placeholder="B3(0~255)">
+				</div>
+				<div class="form-group">
+					<input type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'') " id="B4" class="form-control" placeholder="B4(0~255)">
+				</div>
+				<label style="color: white;">/</label>
+				<div class="form-group">
+					<input type="text" onkeyup="this.value=this.value.replace(/[^\d]/g,'') " id="B5" class="form-control" placeholder="占位数(0~32)">
+				</div>
+			</form>
+			<br /><br /><br />
+			<div class="form-group">
+				<button type="button" class="btn btn-primary btn-lg " id="doAjax">计算结果</button>
+			</div>
+			<div class="center-block" style="width: 56.25rem;">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+					    <h3 class="panel-title">
+					        计算的结果如下：
+					    </h3>
+					</div>
+					<div class="panel-body" style="height: auto;">
+						<span id="show"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
